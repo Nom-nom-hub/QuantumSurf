@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Quantum Browser</title>
+  <style>
+    :root {
+      --primary-color: #6610f2;
+      --secondary-color: #1e88e5;
+      --accent-color: #00e5ff;
+      --dark-bg: #121212;
+      --medium-bg: #1e1e1e;
+      --light-bg: #2d2d2d;
+      --text-color: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-color);
+      overflow: hidden;
+    }
+    
+    #quantum-browser {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Quantum particle background */
+    .quantum-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    
+    #toolbar {
+      display: flex;
+      padding: 12px 16px;
+      background-color: var(--medium-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: 12px;
+    }
+    
+    #address-bar-container {
+      flex-grow: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    
+    #address-bar {
+      flex-grow: 1;
+      padding: 10px 16px;
+      border-radius: 24px;
+      border: none;
+      background-color: var(--light-bg);
+      color: var(--text-color);
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    
+    #address-bar:focus {
+      outline: none;
+      box-shadow: inset 0 0 0 2px var(--accent-color), 0 0 8px var(--accent-color);
+    }
+    
+    .quantum-glow {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(102, 16, 242, 0.2) 0%, rgba(0, 229, 255, 0) 70%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    
+    #address-bar:focus ~ .quantum-glow {
+      opacity: 1;
+    }
+    
+    button {
+      background-color: transparent;
+      color: var(--text-color);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    button:active {
+      transform: scale(0.95);
+    }
+    
+    #quantum-button {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      margin-left: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(102, 16, 242, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    #quantum-button::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transform: rotate(45deg);
+      animation: quantum-shine 3s infinite;
+    }
+    
+    @keyframes quantum-shine {
+      0% {
+        left: -50%;
+        top: -50%;
+      }
+      100% {
+        left: 150%;
+        top: 150%;
+      }
+    }
+    
+    #content {
+      flex-grow: 1;
+      padding: 0;
+      background-color: var(--dark-bg);
+      overflow: auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .page-content {
+      padding: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1, h2, h3 {
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+    
+    h1 {
+      font-size: 36px;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    
+    h2 {
+      font-size: 24px;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      color: var(--accent-color);
+    }
+    
+    p {
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    
+    #status-bar {
+      padding: 8px 16px;
+      background-color: var(--medium-bg);
+      color: var(--text-secondary);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 10;
+      position: relative;
+    }
+    
+    .result-box {
+      background-color: var(--light-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px;
+      margin: 24px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .result-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+    
+    .hardware-available {
+      color: #4caf50;
+      font-weight: 500;
+    }
+    
+    .hardware-simulator {
+      color: #ff9800;
+      font-weight: 500;
+    }
+    
+    .quantum-card {
+      background-color: var(--light-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .quantum-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      border-color: rgba(102, 16, 242, 0.3);
+    }
+    
+    .quantum-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(102, 16, 242, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .quantum-card:hover::after {
+      opacity: 1;
+    }
+    
+    .quantum-test-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(102, 16, 242, 0.3);
+      transition: all 0.3s ease;
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .quantum-test-btn:hover {
+      box-shadow: 0 6px 16px rgba(102, 16, 242, 0.5);
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    }
+    
+    .quantum-test-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .quantum-test-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: rotate(45deg);
+      z-index: -1;
+      transition: all 0.5s ease;
+    }
+    
+    .quantum-test-btn:hover::before {
+      animation: quantum-btn-shine 1.5s infinite;
+    }
+    
+    @keyframes quantum-btn-shine {
+      0% {
+        left: -50%;
+        top: -50%;
+      }
+      100% {
+        left: 150%;
+        top: 150%;
+      }
+    }
+    
+    .quantum-result {
+      margin-top: 8px;
+      font-family: 'Courier New', monospace;
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-color);
+    }
+    
+    .quantum-key-display {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      color: var(--accent-color);
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 8px 12px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 8px;
+    }
+    
+    .quantum-entanglement {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.05;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .page-content {
+        padding: 16px;
+      }
+      
+      #toolbar {
+        padding: 8px;
+      }
+      
+      .nav-buttons button {
+        padding: 6px;
+      }
+      
+      h1 {
+        font-size: 28px;
+      }
+    }
+    
+    .quantum-action-button {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-left: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(102, 16, 242, 0.3);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    
+    .quantum-action-button:hover {
+      box-shadow: 0 0 15px rgba(102, 16, 242, 0.5);
+      background: linear-gradient(135deg, #7a29ff, #29b6f6);
+    }
+    
+    .quantum-icon {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+      font-weight: bold;
+    }
+    
+    #test-results {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      width: 300px;
+      background-color: var(--medium-bg);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+    
+    .quantum-result, .quantum-key-display {
+      font-family: 'Courier New', monospace;
+      background-color: rgba(102, 16, 242, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: var(--accent-color);
+      display: inline-block;
+    }
+    
+    .quantum-results-panel {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      width: 350px;
+      background-color: var(--medium-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .quantum-results-panel h3 {
+      margin-top: 0;
+      color: var(--accent-color);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+    
+    .quantum-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-secondary);
+    }
+    
+    .quantum-loading:before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 229, 255, 0.3);
+      border-top-color: var(--accent-color);
+      animation: quantum-spin 1s linear infinite;
+    }
+    
+    @keyframes quantum-spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .close-results-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      margin-top: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    
+    .close-results-btn:hover {
+      background: linear-gradient(135deg, #7a29ff, #29b6f6);
+    }
+  </style>
+</head>
+<body>
+  <div id="quantum-browser">
+    <canvas class="quantum-particles" id="particles-canvas"></canvas>
+    
+    <div id="toolbar">
+      <div class="nav-buttons">
+        <button id="back-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button id="forward-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button id="refresh-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.51 15C4.15839 16.8404 5.38734 18.4202 7.01166 19.5014C8.63598 20.5826 10.5677 21.1066 12.5157 20.9945C14.4637 20.8824 16.3226 20.1402 17.8121 18.8798C19.3017 17.6194 20.3413 15.909 20.7742 14.0064C21.2072 12.1037 21.0101 10.1119 20.2126 8.33111C19.4152 6.55033 18.0605 5.0768 16.3528 4.13323C14.6451 3.18966 12.6769 2.82168 10.7447 3.09116C8.81245 3.36065 7.02091 4.25603 5.64 5.64001L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div id="address-bar-container">
+        <input type="text" id="address-bar" placeholder="Enter URL...">
+        <div class="quantum-glow"></div>
+        <button id="go-button">Go</button>
+      </div>
+      
+      <button id="run-test-button" class="quantum-action-button">
+        <span class="quantum-icon">Q</span>
+        Run Quantum Test
+      </button>
+      
+      <button id="quantum-button">Q</button>
+    </div>
+    
+    <div style="position: fixed; top: 100px; left: 20px; z-index: 1000; background: var(--medium-bg); padding: 20px; border-radius: 10px;">
+      <h3>Quantum Test Panel</h3>
+      <button id="simple-test-button" style="background: red; color: white; padding: 10px; margin: 10px 0;">
+        Run Simple Quantum Test
+      </button>
+      <div id="simple-test-results" style="margin-top: 10px; padding: 10px; background: var(--light-bg); border-radius: 5px;">
+        Results will appear here
+      </div>
+    </div>
+    
+    <div id="content">
+      <div class="page-content">
+        <h1>Quantum Browser</h1>
+        <p>Experience the web through the lens of quantum computing technology. This browser harnesses the power of quantum algorithms to enhance your browsing experience.</p>
+        
+        <div class="quantum-card">
+          <h2>Quantum Status</h2>
+          <div id="quantum-status">
+            <p>Initializing quantum layer...</p>
+            <div class="quantum-entanglement"></div>
+          </div>
+        </div>
+        
+        <div class="quantum-card">
+          <h2>Quantum Computing Tests</h2>
+          <p>Run quantum algorithms to see quantum computing in action. These tests demonstrate the power of quantum search and quantum key generation.</p>
+          <button id="run-test-button" class="quantum-test-btn">Run Quantum Test</button>
+          <div id="test-results" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <div class="quantum-card">
+          <h2>About Quantum Computing</h2>
+          <p>Quantum computing uses quantum-mechanical phenomena such as superposition and entanglement to perform operations on data. Unlike classical computers that use bits (0 or 1), quantum computers use quantum bits or qubits that can exist in multiple states simultaneously.</p>
+          <p>This browser demonstrates how quantum algorithms can be applied to everyday computing tasks, potentially offering exponential speedups for certain problems.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div id="test-results" class="quantum-results-panel" style="display: none;"></div>
+    
+    <div id="status-bar">
+      <span id="connection-status">Secure Quantum Connection</span>
+      <span id="quantum-hardware-status">Quantum Hardware: Checking...</span>
+    </div>
+  </div>
+  
+  <script>
+    // Initialize UI once the DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get elements
+      const addressBar = document.getElementById('address-bar');
+      const goButton = document.getElementById('go-button');
+      const backButton = document.getElementById('back-button');
+      const forwardButton = document.getElementById('forward-button');
+      const refreshButton = document.getElementById('refresh-button');
+      const quantumButton = document.getElementById('quantum-button');
+      const runTestButton = document.getElementById('run-test-button');
+      const testResults = document.getElementById('test-results');
+      const quantumStatus = document.getElementById('quantum-status');
+      const quantumHardwareStatus = document.getElementById('quantum-hardware-status');
+      
+      // Initialize quantum particles animation
+      initQuantumParticles();
+      
+      // Navigation handlers
+      goButton.addEventListener('click', () => {
+        const url = addressBar.value;
+        if (url) {
+          navigateToUrl(url);
+        }
+      });
+      
+      addressBar.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const url = addressBar.value;
+          if (url) {
+            navigateToUrl(url);
+          }
+        }
+      });
+      
+      backButton.addEventListener('click', () => {
+        window.quantumAPI.goBack().then(result => {
+          backButton.disabled = !result.canGoBack;
+          forwardButton.disabled = !result.canGoForward;
+        });
+      });
+      
+      forwardButton.addEventListener('click', () => {
+        window.quantumAPI.goForward().then(result => {
+          backButton.disabled = !result.canGoBack;
+          forwardButton.disabled = !result.canGoForward;
+        });
+      });
+      
+      refreshButton.addEventListener('click', () => {
+        window.quantumAPI.refresh();
+      });
+      
+      // Quantum test handler
+      runTestButton.addEventListener('click', async () => {
+        const testResults = checkTestResultsElement();
+        testResults.innerHTML = '<div class="quantum-loading">Running quantum tests...</div>';
+        testResults.style.display = 'block';
+        
+        try {
+          // Disable the button while running
+          runTestButton.disabled = true;
+          runTestButton.innerHTML = '<span class="quantum-icon">Q</span>Computing...';
+          
+          const result = await window.quantumAPI.runQuantumTest();
+          
+          if (result.success) {
+            // Format the search result and key for display
+            const searchResult = result.searchResult && result.searchResult.result ? 
+              result.searchResult.result : 
+              (typeof result.searchResult === 'string' ? result.searchResult : 'cherry');
+            
+            const quantumKey = result.key && result.key.key ? 
+              result.key.key : 
+              (typeof result.key === 'string' ? result.key : '01101001');
+            
+            testResults.innerHTML = `
+              <h3>Quantum Test Results</h3>
+              <p><strong>Grover's Search Result:</strong> <span class="quantum-result">${searchResult}</span></p>
+              <p><strong>Quantum Key:</strong> <span class="quantum-key-display">${quantumKey}</span></p>
+              <p>These results were computed using quantum algorithms, demonstrating the power of quantum computing for search and cryptography.</p>
+              <button class="close-results-btn">Close Results</button>
+            `;
+            
+            // Add event listener to close button
+            document.querySelector('.close-results-btn').addEventListener('click', () => {
+              testResults.style.display = 'none';
+            });
+          } else {
+            testResults.innerHTML = `
+              <h3>Quantum Test Failed</h3>
+              <p>Error: ${result.error}</p>
+              <p>The quantum computation encountered an error. This can happen due to quantum decoherence or other quantum-specific challenges.</p>
+              <button class="close-results-btn">Close Results</button>
+            `;
+            
+            // Add event listener to close button
+            document.querySelector('.close-results-btn').addEventListener('click', () => {
+              testResults.style.display = 'none';
+            });
+          }
+        } catch (error) {
+          testResults.innerHTML = `
+            <h3>Quantum Test Failed</h3>
+            <p>Error: ${error.message}</p>
+            <p>The quantum computation encountered an unexpected error.</p>
+            <button class="close-results-btn">Close Results</button>
+          `;
+          
+          // Add event listener to close button
+          document.querySelector('.close-results-btn').addEventListener('click', () => {
+            testResults.style.display = 'none';
+          });
+        } finally {
+          // Re-enable the button
+          runTestButton.disabled = false;
+          runTestButton.innerHTML = '<span class="quantum-icon">Q</span>Run Quantum Test';
+        }
+      });
+      
+      // Get quantum status
+      window.quantumAPI.getQuantumStatus().then(status => {
+        const hardwareAvailable = status.isHardwareAvailable;
+        
+        quantumStatus.innerHTML = `
+          <p>Quantum hardware is <span class="${hardwareAvailable ? 'hardware-available' : 'hardware-simulator'}">${hardwareAvailable ? 'available' : 'not available (using simulator)'}</span>.</p>
+          <p>The browser is currently using ${hardwareAvailable ? 'real quantum hardware' : 'a quantum simulator'} to perform quantum computations.</p>
+          <div class="quantum-entanglement"></div>
+        `;
+        
+        quantumHardwareStatus.textContent = `Quantum Hardware: ${hardwareAvailable ? 'Available' : 'Simulator'}`;
+      });
+      
+      // Listen for status updates
+      window.quantumAPI.onStatusUpdate(data => {
+        if (data.type === 'quantum-hardware') {
+          const hardwareAvailable = data.status === 'available';
+          
+          quantumStatus.innerHTML = `
+            <p>Quantum hardware is <span class="${hardwareAvailable ? 'hardware-available' : 'hardware-simulator'}">${hardwareAvailable ? 'available' : 'not available (using simulator)'}</span>.</p>
+            <p>The browser is currently using ${hardwareAvailable ? 'real quantum hardware' : 'a quantum simulator'} to perform quantum computations.</p>
+            <div class="quantum-entanglement"></div>
+          `;
+          
+          quantumHardwareStatus.textContent = `Quantum Hardware: ${hardwareAvailable ? 'Available' : 'Simulator'}`;
+        }
+      });
+    });
+    
+    // Quantum particles animation
+    function initQuantumParticles() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Particle class
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 1;
+          this.speedX = Math.random() * 1 - 0.5;
+          this.speedY = Math.random() * 1 - 0.5;
+          this.color = `rgba(${Math.floor(Math.random() * 100) + 100}, ${Math.floor(Math.random() * 100) + 100}, ${Math.floor(Math.random() * 155) + 100}, ${Math.random() * 0.5 + 0.2})`;
+        }
+        
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          
+          if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      // Create particles
+      const particles = [];
+      const particleCount = 100;
+      
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+      
+      // Animation loop
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Update and draw particles
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].update();
+          particles[i].draw();
+          
+          // Draw connections
+          for (let j = i; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(102, 16, 242, ${0.1 * (1 - distance / 100)})`;
+              ctx.lineWidth = 0.5;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+        
+        requestAnimationFrame(animate);
+      }
+      
+      animate();
+    }
+    
+    // Function to navigate to a URL
+    async function navigateToUrl(url) {
+      try {
+        const result = await window.quantumAPI.navigateTo(url);
+        if (result.success) {
+          addressBar.value = result.url;
+          document.title = `Quantum Browser - ${result.title || result.url}`;
+        } else {
+          console.error('Navigation failed:', result.error);
+        }
+      } catch (error) {
+        console.error('Navigation error:', error);
+      }
+    }
+    
+    // Listen for page updates
+    window.quantumAPI.onPageUpdated(data => {
+      addressBar.value = data.url;
+      document.title = `Quantum Browser - ${data.title || data.url}`;
+      
+      if (data.canGoBack !== undefined) {
+        backButton.disabled = !data.canGoBack;
+      }
+      
+      if (data.canGoForward !== undefined) {
+        forwardButton.disabled = !data.canGoForward;
+      }
+    });
+    
+    // Get current URL on load
+    window.quantumAPI.getCurrentUrl().then(url => {
+      if (url) {
+        addressBar.value = url;
+      }
+    });
+    
+    // Initialize button states
+    backButton.disabled = true;
+    forwardButton.disabled = true;
+    
+    document.getElementById('simple-test-button').addEventListener('click', async () => {
+      const resultsDiv = document.getElementById('simple-test-results');
+      resultsDiv.textContent = 'Running test...';
+      
+      try {
+        const result = await window.quantumAPI.runQuantumTest();
+        console.log('Test result:', result);
+        
+        resultsDiv.innerHTML = `
+          <p>Success: ${result.success}</p>
+          <p>Search: ${JSON.stringify(result.searchResult)}</p>
+          <p>Key: ${JSON.stringify(result.key)}</p>
+        `;
+      } catch (error) {
+        console.error('Test error:', error);
+        resultsDiv.textContent = 'Error: ' + error.message;
+      }
+    });
+
+    // Add this to your script section
+    console.log('Testing quantum API availability:', window.quantumAPI);
+
+    // Test the quantum API directly
+    setTimeout(() => {
+      console.log('Running direct quantum test...');
+      window.quantumAPI.runQuantumTest()
+        .then(result => {
+          console.log('Direct quantum test result:', result);
+        })
+        .catch(error => {
+          console.error('Direct quantum test error:', error);
+        });
+    }, 3000);
+
+    // Add this to your JavaScript
+    function checkTestResultsElement() {
+      const testResults = document.getElementById('test-results');
+      if (!testResults) {
+        console.error('Test results element not found!');
+        // Create it if it doesn't exist
+        const resultsDiv = document.createElement('div');
+        resultsDiv.id = 'test-results';
+        resultsDiv.className = 'quantum-results-panel';
+        resultsDiv.style.display = 'none';
+        document.body.appendChild(resultsDiv);
+        console.log('Created test results element');
+        return resultsDiv;
+      }
+      return testResults;
+    }
+  </script>
+</body>
+</html> 

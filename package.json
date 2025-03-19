@@ -1,0 +1,16 @@
+{
+  "name": "quantum-browser",
+  "version": "1.0.0",
+  "description": "Quantum-powered web browser with real quantum computing",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "setup-quantum": "python3 -m venv quantum_env && source quantum_env/bin/activate && pip install qiskit qiskit-aer qiskit-ibm-provider"
+  },
+  "dependencies": {
+    "electron": "^22.0.0",
+    "node-html-parser": "^6.1.5",
+    "css": "^3.0.0"
+  }
+} 
