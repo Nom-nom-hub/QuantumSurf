@@ -1,29 +1,31 @@
-# Quantum Browser
+# QuantumSurf
 
 A quantum-powered web browser leveraging real quantum computing capabilities.
 
 ## Overview
 
-Quantum Browser is an experimental web browser that integrates quantum computing technologies to enhance browsing capabilities. Built with Electron and Python, it uses Qiskit for quantum computing operations.
+QuantumSurf is an experimental web browser that integrates quantum computing technologies to enhance browsing capabilities. Built with Electron and Python, it uses Qiskit for quantum computing operations.
 
 ## Features
 
 - Electron-based browser interface
 - Integration with quantum computing via Qiskit
-- Quantum-enhanced web rendering
+- Quantum-enhanced search algorithms using Grover's algorithm
+- Quantum key generation for enhanced security
+- Fallback to simulation when quantum hardware is unavailable
 
 ## Prerequisites
 
 - Node.js (v14+)
-- Python 3.8+
+- Python 3.13+
 - Quantum computing knowledge (recommended)
 
 ## Installation
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/quantum-browser.git
-   cd quantum-browser
+   git clone https://github.com/Nom-nom-hub/QuantumSurf.git
+   cd QuantumSurf
    ```
 
 2. Install dependencies:
@@ -47,11 +49,13 @@ npm start
 
 The project structure:
 - `src/` - Main application code
+  - `src/quantum/` - Quantum computing integration
+  - `src/config/` - Configuration files
 - `quantum_env/` - Python virtual environment with quantum libraries
 
 ## License
 
-[Add your license information here]
+MIT License
 
 ## Contributing
 

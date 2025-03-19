@@ -1,6 +1,6 @@
-# Contributing to Quantum Browser
+# Contributing to QuantumSurf
 
-Thank you for your interest in contributing to Quantum Browser! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to QuantumSurf! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -10,7 +10,7 @@ Please be respectful and considerate of others when contributing to this project
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported
+1. Check if the bug has already been reported in the [Issues](https://github.com/Nom-nom-hub/QuantumSurf/issues)
 2. Use the bug report template
 3. Include detailed steps to reproduce the issue
 4. Include system information (OS, Node.js version, Python version)
@@ -48,6 +48,15 @@ Follow the installation instructions in the README.md file.
 - Document functions with docstrings
 - Include type hints where appropriate
 
+## Quantum Computing Contributions
+
+When contributing quantum computing features:
+
+1. Include both real hardware and simulation implementations
+2. Document the theoretical speedup or advantage
+3. Consider resource constraints (qubits, gate depth)
+4. Test on simulators before submitting
+
 ## Testing
 
 - Write tests for new features
@@ -73,4 +82,4 @@ Follow the installation instructions in the README.md file.
 2. Address review comments promptly
 3. Maintainers will merge approved pull requests
 
-Thank you for contributing to Quantum Browser!
+Thank you for contributing to QuantumSurf!
